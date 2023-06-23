@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .tab ul {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .tab ul li {
+        list-style: none;
+        float: left;
+        padding: 0 20px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+      }
+      .tab ul li.current {
+        background-color: aqua;
+      }
+      .tab-content {
+        margin-top: 10px;
+        border: 1px solid #ccc;
+      }
+      .content {
+        display: none;
+        padding: 10px;
+      }
+      .content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tab" id="tab1">
+      <ul>
+        <li class="current">tab1</li>
+        <li>tab2</li>
+      </ul>
+      <div class="tab-content">
+        <div class="content active">tab1的内容</div>
+        <div class="content">tab2的内容</div>
+      </div>
+    </div>
+    <div class="tab" id="tab2">
+      <ul>
+        <li class="current">tab1</li>
+        <li>tab2</li>
+      </ul>
+      <div class="tab-content">
+        <div class="content active">tab1的内容</div>
+        <div class="content">tab2的内容</div>
+      </div>
+    </div>
+
+    <script>
+      let tab1 = document.getElementById("tab1");
+      //面向过程
+      function createTab(tabContainer) {
+        let tabUl = tabContainer.children[0];
+        let tabList = tabUl.children;
+        let contentList = tabContainer.children[1].children;
+        tabUl.onclick = function (e) {
+          for (let i = 0; i < tabList.length; i++) {
+            if (tabList[i] === e.target) {
+              tabList[i].classList.add("current");
+              contentList[i].classList.add("active");
+            } else {
+              tabList[i].classList.remove("current");
+              contentList[i].classList.remove("active");
+            }
+          }
+        };
+      }
+      // createTab(tab1);
+      // createTab(tab2);
+
+      //面向对象
+      //   function myTab(tabContainer) {
+      //     //这种写法虽然美观，但是相当于new两次，开辟了两次内存空间，浪费内存
+      //     return new myTab.prototype.init(tabContainer);
+      //   }
+
+      function myTab(tabContainer, params) {
+        let autoPlay = params ? params.autoPlay : false;
+        this.tabUl = tabContainer.children[0];
+        this.tabList = this.tabUl.children;
+        this.contentList = tabContainer.children[1].children;
+        this.init();
+        if (autoPlay) this.autoPlay();
+      }
+
+      myTab.prototype.init = function () {
+        let _this = this;
+        this.tabUl.onclick = function (e) {
+          for (let i = 0; i < _this.tabList.length; i++) {
+            if (_this.tabList[i] === e.target) {
+              _this.tabList[i].classList.add("current");
+              _this.contentList[i].classList.add("active");
+            } else {
+              _this.tabList[i].classList.remove("current");
+              _this.contentList[i].classList.remove("active");
+            }
+          }
+        };
+      };
+
+      myTab.prototype.autoPlay = function () {
+        let index = 0;
+        let _this = this;
+        setInterval(function () {
+          if (index === _this.tabList.length) index = 0;
+          for (let i = 0; i < _this.tabList.length; i++) {
+            if (i === index) {
+              _this.tabList[i].classList.add("current");
+              _this.contentList[i].classList.add("active");
+            } else {
+              _this.tabList[i].classList.remove("current");
+              _this.contentList[i].classList.remove("active");
+            }
+          }
+          index++;
+        }, 1000);
+      };
+
+      //let myTab1 = myTab(tab1);
+      //let myTab2 = myTab(tab2);
+      let myTab1 = new myTab(tab1, { autoPlay: true });
+      let myTab2 = new myTab(tab2, { autoPlay: true });
+    </script>
+  </body>
+</html>

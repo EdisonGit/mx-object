@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        #banner {
+            width: 100vw;
+            height: 500px;
+            background-color: aqua;
+            overflow-x: hidden;
+            position: relative;
+        }
+        #banner .prev,#banner .next {
+            position: absolute;
+            top: 50%;
+        }
+        #banner .prev {
+            left: 50px;
+   
+        }
+        #banner .next {
+            right: 50px;
+        }
+        #banner .image-loop {
+            display: flex;
+            /* transform: translateX(-100vw); */
+        }
+        #banner .image-loop.animation {
+            transition: transform 1s ease;
+        }
+        img {
+            min-width: 100vw;
+            height: 500px;
+            margin: 0;
+            vertical-align: bottom;
+        }
+    </style>
+</head>
+<body>
+    <div id="banner">
+        <div class="image-loop animation">
+            <img src="1.jpeg" alt="">
+            <img src="2.jpeg" alt="">
+            <img src="3.jpeg" alt="">
+            <img src="4.jpeg" alt="">
+        </div>
+        <button class="prev">上一张</button>
+        <button class="next">下一张</button>
+    </div>
+    <script>
+        // let images= document.getElementsByClassName('image-loop')[0].children
+        // let i=0;
+        // const imageLength=images.length
+        // document.getElementsByClassName('prev')[0].onclick=function() {
+        //     if(i===0) return;
+        //     i--;
+        //     document.getElementsByClassName('image-loop')[0].style.transform=`translateX(-${i*100}vw)`
+            
+        // }
+        // let enable=true;
+        // document.getElementsByClassName('next')[0].onclick=function() {
+        //     //节流
+        //     if(enable) {
+        //         i++;
+        //         enable=false;
+        //     if(i<images.length) {
+        //         console.log(i)
+        //         document.getElementsByClassName('image-loop')[0].classList.add('animation')
+
+        //         document.getElementsByClassName('image-loop')[0].style.transform=`translateX(-${i*100}vw)`
+        //         setTimeout(function(){
+        //             enable=true
+        //         },1000)
+        //     }else {
+        //         console.log(i,imageLength)
+        //         if(i>imageLength) return
+        //         enable=false
+        //         let img = new Image()
+        //         img.src="1.jpeg"
+        //         document.getElementsByClassName('image-loop')[0].appendChild(img)
+        //         document.getElementsByClassName('image-loop')[0].style.transform=`translateX(-${i*100}vw)`
+        //         setTimeout(function(){
+        //             document.getElementsByClassName('image-loop')[0].removeChild(img)
+        //             document.getElementsByClassName('image-loop')[0].classList.remove('animation')
+        //             document.getElementsByClassName('image-loop')[0].style.transform=`translateX(0)`
+        //             i=0;
+        //             enable=true;
+        //         },1000)
+        //     }
+        //     }
+
+        // }
+        // console.log(images)
+        //面向对象
+        function banner(id){
+            let container = document.getElementById(id)
+            console.log(container.children)
+            this.imageLoop = Array.prototype.slice.call(container.children).find(function(item){
+                return item.className.match('image-loop')
+            })
+            let prevBtn = Array.prototype.slice.call(container.children).find(function(item){
+                return item.className.match('prev')
+            })
+            let nextBtn = Array.prototype.slice.call(container.children).find(function(item){
+                return item.className.match('next')
+            })
+            console.log(this.imageLoop)
+            this.images= this.imageLoop.children
+            console.log(this.images)
+            this.index=0;
+            this.first=true;
+            let _this =this;
+            this.setLoop = true;
+           this.imageLoop.addEventListener('transitionend',function(){
+            console.log(_this.index)
+            if(_this.index === 4) {
+               _this.myfn() 
+            }
+           })
+
+            this.myfn = function () {
+                    _this.imageLoop.removeChild(this.img)
+                _this.imageLoop.classList.remove('animation')
+                _this.imageLoop.style.transform=`translateX(0)`
+                _this.index=0;
+                this.setLoop=true;
+
+           }
+            prevBtn.onclick=function() {
+                if(_this.index===0) return;
+                _this.index--;
+                _this.imageLoop.style.transform=`translateX(-${_this.index*100}vw)`
+            }
+            nextBtn.onclick=function() {
+                if(_this.index===_this.images.length-1) {
+                    if(_this.setLoop) {
+                        _this.loop()
+                    }
+
+                }else {
+                    _this.imageLoop.classList.add('animation')
+                    _this.index++;
+                    _this.imageLoop.style.transform=`translateX(-${_this.index*100}vw)`
+                }
+
+
+            }
+            // this.autoplay()
+
+        }
+        banner.prototype.autoplay=function() {
+            let _this =this;
+            // if(_this.index===_this.images.length-1) {
+            //     _this.index=0
+            //     _this.imageLoop.style.transform=`translateX(0)`
+            //     function wait() {
+            //         return new Promise(resolve=>{
+            //             setTimeout(() => {
+            //                 resolve(1)
+            //             }, 2000);
+            //         })
+            //     }
+            //     async function Async() {
+            //         const e = await wait()
+            //         _this.index++;
+            //         _this.imageLoop.style.transform=`translateX(-${_this.index*100}vw)`
+            //     }
+            //     Async()
+            // }
+            setInterval(function(){
+                if(_this.first) {
+                    _this.index++;
+                    _this.imageLoop.style.transform=`translateX(-${_this.index*100}vw)`
+                    _this.first = false;
+                }else {
+                    _this.imageLoop.style.transform=`translateX(-${_this.index*100}vw)`
+                    _this.index++;
+                }
+
+
+                    if(_this.index===_this.images.length) {
+                        _this.index=0
+                        // _this.loop()
+                    }
+
+            },2000)
+        }
+        banner.prototype.loop=function() {
+            this.setLoop = false;
+            this. img = new Image()
+            this.img.src="1.jpeg"
+           this.imageLoop.appendChild(this.img)
+           this.index++;
+           this.imageLoop.style.transform=`translateX(-${this.index*100}vw)`
+        //    this.imageLoop.addEventListener('transitionend',this.myfn(img))
+
+        }
+
+        new banner('banner')
+    </script>
+</body>
+</html>
