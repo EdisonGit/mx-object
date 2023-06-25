@@ -53,37 +53,43 @@
       <button class="next">下一张</button>
     </div>
     <script>
-      function banner(id) {
+      function banner(id, params) {
+        this.params = params;
         let container = document.getElementById(id);
         this.imageLoop = Array.prototype.slice
           .call(container.children)
           .find(function (item) {
             return item.className.match("image-loop");
           });
-        let prevBtn = Array.prototype.slice
+        this.prevBtn = Array.prototype.slice
           .call(container.children)
           .find(function (item) {
             return item.className.match("prev");
           });
-        let nextBtn = Array.prototype.slice
+        this.nextBtn = Array.prototype.slice
           .call(container.children)
           .find(function (item) {
             return item.className.match("next");
           });
         console.log(this.imageLoop);
         this.images = this.imageLoop.children;
+        const imagesCount = this.images.length;
+        this.imagesCount = imagesCount;
         console.log(this.images);
         this.index = 0;
         this.first = true;
+        this.init();
+        if (this.params.autoplay) {
+          this.autoplay();
+        }
+      }
+      banner.prototype.init = function (id) {
         let _this = this;
-        this.setLoop = true;
-        this.imageLoop.addEventListener("transitionend", function () {
-          // _this.index++;
-          // console.log(_this.index);
-        });
+
+        // this.imageLoop.addEventListener("transitionend", function () {
+        // });
 
         //防抖
-
         this.fangdou = function () {
           let flag = true;
           return function (fn, ms) {
@@ -104,9 +110,13 @@
           _this.imageLoop.style.transform = `translateX(0)`;
           _this.index = 0;
           _this.first = false;
-          console.log("我执行了");
         };
-        prevBtn.onclick = function () {
+        if (this.params.autoplay) {
+          this.prevBtn.style.display = "none";
+          this.nextBtn.style.display = "none";
+          return;
+        }
+        this.prevBtn.onclick = function () {
           debounce(function () {
             if (_this.index === 0) return;
             _this.index--;
@@ -115,24 +125,25 @@
             }vw)`;
           }, 1000);
         };
-        nextBtn.onclick = function () {
+        this.nextBtn.onclick = function () {
           debounce(function () {
-            if (_this.index === _this.images.length - 1) {
-              if (_this.setLoop) {
-                _this.loop();
-              }
-            } else {
-              _this.imageLoop.classList.add("animation");
-              _this.index++;
-              _this.imageLoop.style.transform = `translateX(-${
-                _this.index * 100
-              }vw)`;
+            _this.imageLoop.classList.add("animation");
+            if (_this.index === _this.imagesCount - 1) {
+              _this.loop();
+            }
+
+            _this.index++;
+            _this.imageLoop.style.transform = `translateX(-${
+              _this.index * 100
+            }vw)`;
+            if (_this.index === _this.imagesCount) {
+              setTimeout(function () {
+                _this.myfn();
+              }, 1000);
             }
           }, 1000);
         };
-
-        this.autoplay();
-      }
+      };
       banner.prototype.autoplay = function () {
         let _this = this;
         setInterval(function () {
@@ -146,10 +157,10 @@
           setTimeout(function () {
             _this.index++;
           }, 1000);
-          if (_this.index === 3) {
+          if (_this.index === _this.imagesCount - 1) {
             _this.loop();
           }
-          if (_this.index === 4) {
+          if (_this.index === _this.imagesCount) {
             setTimeout(function () {
               _this.myfn();
             }, 1000);
@@ -162,7 +173,7 @@
         this.imageLoop.appendChild(this.img);
       };
 
-      new banner("banner");
+      new banner("banner", { autoplay: true });
     </script>
   </body>
 </html>
